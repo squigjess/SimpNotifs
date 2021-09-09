@@ -17,7 +17,7 @@ def handleCallback():
     # Check if the signature given in the callback response matches.
     # https://dev.twitch.tv/docs/eventsub#verify-a-signature
     doesSignatureMatch = api_utils.verifyChallenge(
-        secrets.sub_secret,
+        secrets.EVENTSUB_SECRET,
         request.headers["Twitch-Eventsub-Message-Id"]+request.headers["Twitch-Eventsub-Message-Timestamp"]+request.data.decode("utf-8"),
         request.headers["Twitch-Eventsub-Message-Signature"]
     )
