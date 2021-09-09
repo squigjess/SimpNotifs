@@ -10,16 +10,13 @@ import secrets # A file declaring strings that match up to secrets, keys, and ID
 
 # Accepts "\@here", "\@everyone", or a role ID as a string (looks like "<@&00000000>", which you can get my mentioning \@ROLENAME in your server).
 # Also accepts "" if you want nobody at all to be pinged
-roleToPing = "\@everyone"
+roleToPing = ""
 
 app = Flask(__name__)
 @app.route("/callback", methods = ['POST'])
 def handleCallback():
     # Put request data into a dict for easier access.
     requestData = request.get_json(force=True)
-
-    # print(request.headers)
-    print(json.dumps(requestData,indent=4))
 
     # If the response is for subscription verification...
     if request.headers["Twitch-Eventsub-Message-Type"] == "webhook_callback_verification" and request.headers["Twitch-Eventsub-Subscription-Type"] == "stream.online":
@@ -39,8 +36,7 @@ def handleCallback():
 
     # If the response is a stream.online notification...
     elif request.headers["Twitch-Eventsub-Message-Type"] == "notification" and request.headers["Twitch-Eventsub-Subscription-Type"] == "stream.online":
-        print("Stream is online")
-
+        print("Stream is online") # For grep-ing logs
         streamerName = requestData["event"]["broadcaster_user_name"]
         streamURL    = "https://twitch.tv/{}".format(streamerName)
 
