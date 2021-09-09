@@ -1,4 +1,4 @@
-'''Starts app.py via WSGI.'''
+"""Starts app.py via WSGI."""
 
 from flaskapp import app
 

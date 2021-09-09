@@ -1,5 +1,5 @@
-'''Defines the API endpoints, handles incoming event triggers, sends outgoing
-webhook triggers '''
+"""Defines the API endpoints, handles incoming event triggers, sends outgoing
+webhook triggers."""
 
 from flask import Flask, request, Response
 import requests
@@ -13,7 +13,7 @@ import secrets # A file declaring strings that match up to secrets, keys, and ID
 roleToPing = ""
 
 app = Flask(__name__)
-@app.route("/callback", methods = ['POST'])
+@app.route("/callback", methods = ["POST"])
 def handleCallback():
     # Put request data into a dict for easier access.
     requestData = request.get_json(force=True)
@@ -43,12 +43,9 @@ def handleCallback():
         # Send a request to a Discord Webhook
         r = requests.post(secrets.DISCORD_WEBHOOK_URL, data = {
             "username" : "SimpNotifs",
-            "content"  : ":red_circle: **{streamerName} is online!**\n{streamURL}\n{roleToPing}".format(
-                streamerName=streamerName,
-                streamURL=(streamURL+"\n")*3,
-                roleToPing=roleToPing
-            )
-        })
+            "content"  : ":red_circle: **{streamerName} is online!**\n{streamURL}\n{roleToPing}".format(streamerName=streamerName,
+                                                                                                        streamURL=(streamURL+"\n")*3,
+                                                                                                        roleToPing=roleToPing)})
         return Response("Stream online", status=200)
 
     # Return a 403 if we get a message type + subscription type combo we can't handle.

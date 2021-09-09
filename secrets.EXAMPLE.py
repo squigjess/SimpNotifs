@@ -1,5 +1,6 @@
-'''Secrets, keys, and IDs that should be concealed.
-   See the README for more information.'''
+"""Secrets, keys, and IDs that should be concealed.
+   See the README for more information.
+"""
 
 EVENTSUB_SECRET      = "foo"
 TWITCH_CLIENT_ID     = "bar"
