@@ -1,5 +1,6 @@
 """Defines the API endpoints, handles incoming event triggers, sends outgoing
-webhook triggers."""
+webhook triggers.
+"""
 
 from flask import Flask, request, Response
 import requests
