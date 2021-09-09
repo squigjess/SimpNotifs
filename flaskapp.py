@@ -14,10 +14,12 @@ app = Flask(__name__)
 def handleCallback():
     # Put request data into a dict for easier access.
     requestData = request.get_json(force=True)
-    os.system("clear")
-    print(request.headers)
 
-    if request.headers["Twitch-Eventsub-Message-Type"] == "webhook_callback_verification":
+    print(request.headers)
+    print(json.dumps(requestData,indent=4))
+
+    # If the response is for subscription verification...
+    if request.headers["Twitch-Eventsub-Message-Type"] == "webhook_callback_verification" and request.headers["Twitch-Eventsub-Subscription-Type"] == "stream.online":
         # Check if the signature given in the callback response matches.
         # https://dev.twitch.tv/docs/eventsub#verify-a-signature
         doesSignatureMatch = api_utils.verifyChallenge(
@@ -32,13 +34,13 @@ def handleCallback():
         elif doesSignatureMatch == False: # Signature did not match. EventSub expects a 403
             return Response("Signature did not match :(", status=403)
 
-    elif request.headers["Twitch-Eventsub-Message-Type"] == "notification" and request.headers["Twitch-Eventsub-subscription-Type"] == "stream.online":
+    # If the response is a stream.online notification...
+    elif request.headers["Twitch-Eventsub-Message-Type"] == "notification" and request.headers["Twitch-Eventsub-Subscription-Type"] == "stream.online":
         print("Stream is online")
         # Begin handling the stream.online event.
-        return {"foo":"bar"}
+        return Response("Stream online", status=200)
     else:
-        #print(json.dumps(requestData, indent=4))
-        return {"foo":"bar"}
+        return Response("Invalid", status=403)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
