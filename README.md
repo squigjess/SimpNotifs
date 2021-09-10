@@ -26,6 +26,7 @@ Between the Twitch API and the Discord webhook, there's a few things in here tha
 * `DISCORD_WEBHOOK_URL` is what it says on the tin. SimpNotifs will use this URL when it sees the channel go online. You can set this up in your Discord server under **Server Settings > Integrations > Webhooks**.
 
 ### Other considerations
+* EventSub doesn't actually trigger the `stream.online` webhook until the stream has been online for around a minute, sometimes more. Keep this in mind when testing!
 * While setting up this application (if you're gutsy enough to do so), consider setting up the Twitch CLI tool for testing. It's a little unwieldy, but saved my life a few times.
 * `config.ini` is set up to save logs to `/var/log/uwsgi/`; ensure this directory is created and that you have ownership of the directory with sudo `chown -R $USER:$USER /var/log/uwsgi` (assuming you're following the above articles and allowing the Flask app to run under your user account).
 * Twitch's EventSub API will only work over HTTPS. Save yourself the trouble and don't bother running this without Nginx and a HTTPS certificate.

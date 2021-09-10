@@ -6,7 +6,6 @@ from flask import Flask, request, Response
 import requests
 import json
 import api_utils
-import os
 import secrets # A file declaring strings that match up to secrets, keys, and IDs.
 
 # Accepts "\@here", "\@everyone", or a role ID as a string (looks like "<@&00000000>", which you can get my mentioning \@ROLENAME in your server).
