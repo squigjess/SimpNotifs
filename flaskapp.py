@@ -33,8 +33,9 @@ def handleCallback():
 
         # If the response is a stream.online notification...
         elif request.headers["Twitch-Eventsub-Message-Type"] == "notification" and request.headers["Twitch-Eventsub-Subscription-Type"] == "stream.online":
+            # These will be logged for debugging/troubleshooting purposes.
             print(request.headers)
-            print(requestData)
+            print(json.dumps(requestData,indent=4))
 
             # ...Set up paramters for the webhook "bot"...
             print("Stream is online") # For grep-ing logs
