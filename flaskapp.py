@@ -8,49 +8,53 @@ import json
 import api_utils
 import secrets # A file declaring strings that match up to secrets, keys, and IDs.
 
-# Accepts "\@here", "\@everyone", or a role ID as a string (looks like "<@&00000000>", which you can get my mentioning \@ROLENAME in your server).
+# Accepts "\@here", "\@everyone", or a role ID as a string (looks like "<@&00000000>", which you can get by mentioning \@ROLENAME in your server).
 # Also accepts "" if you want nobody at all to be pinged
 roleToPing = ""
 
 app = Flask(__name__)
 @app.route("/callback", methods = ["POST"])
 def handleCallback():
-    # Put request data into a dict for easier access.
+    # Serialise request data into a dict for easier access.
     requestData = request.get_json(force=True)
 
-    # If the response is for subscription verification...
-    if request.headers["Twitch-Eventsub-Message-Type"] == "webhook_callback_verification" and request.headers["Twitch-Eventsub-Subscription-Type"] == "stream.online":
-        # Check if the signature given in the callback response matches.
-        # https://dev.twitch.tv/docs/eventsub#verify-a-signature
-        doesSignatureMatch = api_utils.verifyChallenge(
-            secrets.EVENTSUB_SECRET,
-            request.headers["Twitch-Eventsub-Message-Id"]+request.headers["Twitch-Eventsub-Message-Timestamp"]+request.data.decode("utf-8"),
-            request.headers["Twitch-Eventsub-Message-Signature"]
-        )
-        # If the calculated signature matches the one sent by EventSub, respond to EventSub with the expected response.
-        # At this point, the subscription is now registered and active!
-        if doesSignatureMatch == True:
+    # Check if the signature given in the callback response checks out.
+    # https://dev.twitch.tv/docs/eventsub#verify-a-signature
+    doesSignatureMatch = api_utils.verifyChallenge(
+        secrets.EVENTSUB_SECRET,
+        request.headers["Twitch-Eventsub-Message-Id"]+request.headers["Twitch-Eventsub-Message-Timestamp"]+request.data.decode("utf-8"),
+        request.headers["Twitch-Eventsub-Message-Signature"]
+    )
+    # If the calculated signature matches the one sent by EventSub, continue processing the callback request.
+    if doesSignatureMatch:
+        # If the response is for subscription verification, return the challenge to activate the subscription.
+        if request.headers["Twitch-Eventsub-Message-Type"] == "webhook_callback_verification" and request.headers["Twitch-Eventsub-Subscription-Type"] == "stream.online":
             return Response(requestData["challenge"], status=200)
-        elif doesSignatureMatch == False: # Signature did not match. EventSub expects a 403.
-            return Response("Signature did not match :(", status=403)
 
-    # If the response is a stream.online notification...
-    elif request.headers["Twitch-Eventsub-Message-Type"] == "notification" and request.headers["Twitch-Eventsub-Subscription-Type"] == "stream.online":
-        print("Stream is online") # For grep-ing logs
-        streamerName = requestData["event"]["broadcaster_user_name"]
-        streamURL    = "https://twitch.tv/{}".format(streamerName)
+        # If the response is a stream.online notification...
+        elif request.headers["Twitch-Eventsub-Message-Type"] == "notification" and request.headers["Twitch-Eventsub-Subscription-Type"] == "stream.online":
+            print(request.headers)
+            print(requestData)
 
-        # Send a request to a Discord Webhook
-        r = requests.post(secrets.DISCORD_WEBHOOK_URL, data = {
-            "username" : "SimpNotifs",
-            "content"  : ":red_circle: **{streamerName} is online!**\n{streamURL}\n{roleToPing}".format(streamerName=streamerName,
-                                                                                                        streamURL=(streamURL+"\n")*3,
-                                                                                                        roleToPing=roleToPing)})
-        return Response("Stream online", status=200)
+            # ...Set up paramters for the webhook "bot"...
+            print("Stream is online") # For grep-ing logs
+            streamerName = requestData["event"]["broadcaster_user_name"]
+            streamURL    = "https://twitch.tv/{}".format(streamerName)
+            botName      = "SimpNotifs"
+            botMessage   = ":red_circle: **{name} is online!**\n{url}\n{role}".format(name=streamerName,
+                                                                                      url=(streamURL+"\n")*3,
+                                                                                      role=roleToPing)
+            # ...Then send a request to a Discord Webhook.
+            r = requests.post(secrets.DISCORD_WEBHOOK_URL, data = {
+                "username" : botName,
+                "content"  : botMessage})
+            return Response("Stream online", status=200)
 
-    # Return a 403 if we get a message type + subscription type combo we can't handle.
-    else:
-        return Response("Invalid", status=403)
+        else: # Return a 403 if we get a message type + subscription type combo we can't handle.
+            return Response("Invalid/unhandled request type", status=403)
+
+    elif not doesSignatureMatch: # Signature did not match. EventSub expects a 403.
+        return Response("Signature did not match :(", status=403)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
