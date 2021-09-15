@@ -2,6 +2,7 @@
 import hmac
 import hashlib
 import secrets
+import requests
 
 BOT_NAME         = "SimpNotifs"
 MSG_ID           = "Twitch-Eventsub-Message-Id"
@@ -25,7 +26,7 @@ def containsExpectedHeaders(requestHeaders):
     """Checks the incoming request's headers to see if the expected headers are present"""
     for header in expectedHeaders:
         if header not in requestHeaders:
-			print("Header missing: {}".format(header)) # For grep-ing logs
+            print("Header missing: {}".format(header)) # For grep-ing logs
             return False
     return True
 
@@ -33,7 +34,7 @@ def postToDiscord(streamerName):
     print("Stream online: {}".format(streamerName)) # For grep-ing logs
     botMessage   = ":red_circle: **{name} is online!**\n{url}\n{role}".format(name=streamerName,
                                                                               url=("https://twitch.tv/{}\n".format(streamerName))*3,
-                                                                              role=roleToPing
+                                                                              role=roleToPing)
     r = requests.post(secrets.DISCORD_WEBHOOK_URL,
                       data = {"username" : BOT_NAME,
                               "content"  : botMessage})

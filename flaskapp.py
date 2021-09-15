@@ -14,7 +14,7 @@ def handleCallback():
     # Serialise request data into a dict for easier access.
     requestData = request.get_json(force=True)
 
-	print(json.dumps(requestData, indent=4))
+    print(json.dumps(requestData, indent=4))
     print(request.headers)
 
     # First off, check if the necessary headers are present.
