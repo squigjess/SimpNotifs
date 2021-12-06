@@ -6,7 +6,7 @@ Listen for when a Twitch channel goes live and notify a Discord channel.
 2. Once the server receives the event, trigger a Discord webhook to send a message to a specified channel.
 
 ## Preamble
-I'm in the process of rewriting this app using FastAPI instead of Flask over at [squigjess/SimpNotifs2](https:/github.com/squigjess/SimpNotifs2). Keep an eye there for any future updates.
+I'm in the process of rewriting this app using FastAPI instead of Flask over at [squigjess/SimpNotifs2](https://github.com/squigjess/SimpNotifs2). Keep an eye there for any future updates.
 
 ## Installation
 ### Install Python dependencies
